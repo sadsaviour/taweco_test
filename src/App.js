@@ -10,51 +10,59 @@ import firebaseConfig from './firebase';
 
 class App extends Component {
   state = {
-    companies: [
-      { id: 1, name: 'one', reviews: { rating: 0, text: 'test review' } },
-      { id: 2, name: 'two', reviews: { rating: 0, text: 'test review' } },
-    ],
+    companies: [],
+    companiesIndex: {},
+    review: {
+      Text:
+        'Отвратительно доставили заказ. Заказывали еду на дом, курьер через 1.5 часа приехал с термосумкой, вынул из неё протёкший снизу бумажный пакет. Внутри пакета все контейнеры были приоткрыты с уголков и все содержимое вытекло. Как мы поняли, первоначально плохо упаковали в ресторане! От заказа соответственно отказались, звонили в сам ресторан и предпринять какие-либо меры они отказались… вот так отвратительно...',
+      author: 'Родамир Владимирович',
+      companyid: 2014,
+      id: 1546,
+      rating: '4.0',
+      relevance: '0.72',
+      time: 1537615192821,
+    },
+    category: { id: 3001, name: 'restaraunt' },
+    company: { category: 3003, id: 2014, name: 'Barbershop Moo' },
   };
 
-  componentWillMount() {
+  componentDidMount() {
     firebase.initializeApp(firebaseConfig);
     var db = firebase.firestore();
 
     db.settings({
       timestampsInSnapshots: true,
     });
-    /*
-    db.collection('Company')
-      .add({
-        id: new Date().valueOf(),
-        name: 'test',
-        categoryId: [1],
-      })
-      .then(function(docRef) {
-        console.log('Document written with ID: ', docRef.id);
-      })
-      .catch(function(error) {
-        console.error('Error adding document: ', error);
-      });
-     */
 
-    db.collection('Category')
+    db.collection('companies')
       .get()
       .then(querySnapshot => {
-        console.log(querySnapshot.size);
+        querySnapshot.forEach(doc => {
+          const id = doc.data().id;
+          this.setState(prevState => {
+            const index = prevState.companies.length;
+            const newCompanies = { companies: [...prevState.companies, doc.data()] };
+            const newIndex = { companiesIndex: { ...prevState.companiesIndex, [id]: index } };
+            return Object.assign({}, newCompanies, newIndex);
+          });
+          console.log(`${doc.id} => ${doc.data()}`);
+        });
       });
   }
 
-  setRating(id, rating) {
+  setRating = (id, rating) => {
     this.setState(prevState => {
-      var stateCopy = Object.assign({}, prevState);
-      stateCopy.companies[id - 1].rating = rating;
-      return { companies: stateCopy };
+      const { companiesIndex, companies } = this.state;
+      const index = companiesIndex[id];
+      const value = Object.assign({}, companies[index], { rating: `${rating}.0` });
+      let companiesCopy = prevState.companies.slice();
+      companiesCopy.splice(index, 1, value);
+      return { companies: companiesCopy };
     });
-  }
+  };
 
   render() {
-    const { companies, setRating } = this.state;
+    const { companies, companiesIndex } = this.state;
     return (
       <Router>
         <Screen>
@@ -62,12 +70,20 @@ class App extends Component {
           <Route
             exact
             path="/company/:id"
-            render={({ match }) => <Company companies={companies} match={match} />}
+            render={({ match }) => (
+              <Company companies={companies} companiesIndex={companiesIndex} match={match} />
+            )}
           />
           <Route
+            exact
             path="/company/:id/review"
             render={({ match }) => (
-              <AddReview companies={companies} match={match} setRating={setRating} />
+              <AddReview
+                companies={companies}
+                companiesIndex={companiesIndex}
+                match={match}
+                setRating={this.setRating}
+              />
             )}
           />
         </Screen>

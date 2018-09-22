@@ -15,11 +15,11 @@ const Container = styled.div`
 
 const AddReview = styled.button``;
 
-const Company = ({ companies, match }) => {
+const Company = ({ companies, companiesIndex, match }) => {
   const {
     params: { id },
   } = match;
-  const company = companies[id - 1];
+  const company = companies[companiesIndex[id]];
   return (
     <Container>
       <CompanyCard company={company} />
