@@ -8,6 +8,11 @@ const Container = styled.div`
   background: white;
 
   align-items: center;
+
+  margin-left: auto;
+  margin-right: auto;
+
+  max-width: 450px;
 `;
 
 const Logo = styled.img`
