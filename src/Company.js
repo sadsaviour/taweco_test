@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
-import Ionicon from 'react-ionicons';
 import CompanyCard from './CompanyCard';
 import Stars from './Stars';
 

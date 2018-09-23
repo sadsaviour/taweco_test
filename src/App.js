@@ -77,9 +77,8 @@ class App extends Component {
         const sortedCompanies = companies.slice().sort((a, b) => ratings[b.id] - ratings[a.id]);
 
         const newIndex = sortedCompanies.reduce((acc, c) => {
-          return { ...acc, [c.id]: acc.length };
+          return Object.assign({}, acc, { [c.id]: Object.keys(acc).length });
         }, {});
-
         this.setState({
           companies: sortedCompanies,
           companiesIndex: newIndex,
