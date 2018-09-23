@@ -1,6 +1,5 @@
 import React from 'react';
 import styled from 'styled-components';
-import { FirestoreCollection } from 'react-firestore';
 
 import CompanyCard from './CompanyCard';
 
@@ -25,22 +24,23 @@ const Placeholder = styled.p`
 `;
 
 const Loading = () => <p>loading ...</p>;
-const Companies = ({ companies }) => (
+
+const Companies = ({ companies, ratings }) => (
   <React.Fragment>
-    {companies.map(company => (
-      <CompanyCard company={company} key={String(company.id)} />
-    ))}
+    {companies.map((company) => {
+      const rating = ratings[company.id];
+      return <CompanyCard company={company} rating={rating} key={String(company.id)} />;
+    })}
   </React.Fragment>
 );
-
-const CompaniesList = ({ companies }) => {
+const CompaniesList = ({ companies, ratings }) => {
   const list = companies
     ? companies.map(company => <CompanyCard company={company} key={String(company.id)} />)
     : null;
   return (
     <Container>
       {!list && <Placeholder>No companies</Placeholder>}
-      <Companies companies={companies} />
+      <Companies companies={companies} ratings={ratings} />
     </Container>
   );
 };
